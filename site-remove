@@ -1,0 +1,22 @@
+#!/bin/bash
+
+read -p "Domain name? " DOMAIN 
+read -p "DB Name? " DB_NAME
+
+echo -n "Removing database and user..."
+
+mysql -u root --password=root -e "REVOKE ALL PRIVILEGES ON $DB_NAME.* FROM '$DB_NAME'@'localhost'; FLUSH PRIVILEGES;"
+mysql -u root --password=root -e "DROP USER '$DB_NAME'@'localhost';"
+mysql -u root --password=root -e "DROP DATABASE $DB_NAME;"
+
+echo "done."
+
+cd /etc/nginx/ssl
+
+sudo rm $DOMAIN.crt $DOMAIN.csr $DOMAIN.key
+
+cd ..
+
+sudo rm sites-enabled/$DOMAIN sites-available/$DOMAIN
+
+sudo service nginx reload
